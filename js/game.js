@@ -4,6 +4,12 @@ let gameScene = new Phaser.Scene("Game");
 // initiate scene parameters
 gameScene.init = function() {
   this.playerSpeed = 3;
+
+  this.enemyMinSpeed = 2;
+  this.enemyMaxSpeed = 5;
+
+  this.enemyMinY = 80;
+  this.enemyMaxY = 280;
 };
 
 // load assets
@@ -36,6 +42,19 @@ gameScene.create = function() {
       "goal"
     )
     .setScale(0.5);
+
+  // enemy
+  this.enemy = this.add.sprite(120, this.sys.game.config.height / 2, "enemy");
+  this.enemy.flipX = true;
+  this.enemy.setScale(0.6);
+
+  // set enemy speed
+  const dir = Math.random() < 0.5 ? 1 : -1;
+  const speed =
+    this.enemyMinSpeed +
+    Math.random() * (this.enemyMaxSpeed - this.enemyMinSpeed);
+
+  this.enemy.speed = dir * speed;
 };
 
 // this is called up to 60 times per sec
@@ -53,6 +72,17 @@ gameScene.update = function() {
     // restart the scene
     this.scene.restart();
     return;
+  }
+
+  // enemy movement
+  this.enemy.y += this.enemy.speed;
+
+  // check we haven't passed min or max Y
+  const conditionUp = this.enemy.speed < 0 && this.enemy.y <= this.enemyMinY;
+  const conditionDown = this.enemy.speed > 0 && this.enemy.y >= this.enemyMaxY;
+
+  if (conditionUp || conditionDown) {
+    this.enemy.speed *= -1;
   }
 };
 
