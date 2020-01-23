@@ -29,10 +29,10 @@ gameScene.create = function() {
   bg.setOrigin(0, 0);
 
   // create the player
-  this.player = this.add.sprite(50, 180, "player");
+  this.player = this.add.sprite(40, 180, "player");
 
   // reduce the scale of the player by 50%
-  this.player.setScale(0.5);
+  this.player.setScale(0.45);
 
   // goal
   this.goal = this.add
@@ -44,17 +44,37 @@ gameScene.create = function() {
     .setScale(0.5);
 
   // enemy
-  this.enemy = this.add.sprite(120, this.sys.game.config.height / 2, "enemy");
-  this.enemy.flipX = true;
-  this.enemy.setScale(0.6);
+  this.enemies = this.add.group({
+    key: "enemy",
+    repeat: 5,
+    setXY: {
+      x: 90,
+      y: 100,
+      stepX: 80,
+      stepY: 20
+    }
+  });
 
-  // set enemy speed
-  const dir = Math.random() < 0.5 ? 1 : -1;
-  const speed =
-    this.enemyMinSpeed +
-    Math.random() * (this.enemyMaxSpeed - this.enemyMinSpeed);
+  // setting the scale of all group elements
+  Phaser.Actions.ScaleXY(this.enemies.getChildren(), -0.5, -0.5);
 
-  this.enemy.speed = dir * speed;
+  // set flipX, and speed
+  Phaser.Actions.Call(
+    this.enemies.getChildren(),
+    function(enemy) {
+      // flip enemy
+      enemy.flipX = true;
+
+      // set speed
+      const dir = Math.random() < 0.5 ? 1 : -1;
+      const speed =
+        this.enemyMinSpeed +
+        Math.random() * (this.enemyMaxSpeed - this.enemyMinSpeed);
+
+      enemy.speed = dir * speed;
+    },
+    this
+  );
 };
 
 // this is called up to 60 times per sec
@@ -65,8 +85,8 @@ gameScene.update = function() {
   }
 
   // treasure overlap check
-  let playerRect = this.player.getBounds();
-  let treasureRect = this.goal.getBounds();
+  const playerRect = this.player.getBounds();
+  const treasureRect = this.goal.getBounds();
 
   if (Phaser.Geom.Intersects.RectangleToRectangle(playerRect, treasureRect)) {
     // restart the scene
@@ -74,15 +94,30 @@ gameScene.update = function() {
     return;
   }
 
-  // enemy movement
-  this.enemy.y += this.enemy.speed;
+  // get enemies
+  const enemies = this.enemies.getChildren();
 
-  // check we haven't passed min or max Y
-  const conditionUp = this.enemy.speed < 0 && this.enemy.y <= this.enemyMinY;
-  const conditionDown = this.enemy.speed > 0 && this.enemy.y >= this.enemyMaxY;
+  for (const enemy of enemies) {
+    // enemy movement
+    enemy.y += enemy.speed;
 
-  if (conditionUp || conditionDown) {
-    this.enemy.speed *= -1;
+    // check we haven't passed min or max Y
+    const conditionUp = enemy.speed < 0 && enemy.y <= this.enemyMinY;
+    const conditionDown = enemy.speed > 0 && enemy.y >= this.enemyMaxY;
+
+    if (conditionUp || conditionDown) {
+      enemy.speed *= -1;
+    }
+
+    // check enemy overlap
+    let enemyRect = enemy.getBounds();
+
+    if (Phaser.Geom.Intersects.RectangleToRectangle(playerRect, enemyRect)) {
+      console.log("game over");
+      // restart the scene
+      this.scene.restart();
+      return;
+    }
   }
 };
 
