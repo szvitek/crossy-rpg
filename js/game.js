@@ -17,13 +17,31 @@ gameScene.create = function() {
     this.sys.game.config.height / 2
   );
 
-  this.add.sprite(50, 180, "player");
+  this.player = this.add.sprite(50, 180, "player");
 
-  let enemy1 = this.add.sprite(250, 180, "enemy");
-  enemy1.flipX = true;
-  enemy1.setScale(0.75);
-  let enemy2 = this.add.sprite(450, 180, "enemy");
-  enemy2.flipX = true;
+  this.enemy1 = this.add.sprite(250, 180, "enemy");
+  this.enemy1.flipX = true;
+  this.enemy1.setScale(0.75);
+  this.enemy2 = this.add.sprite(450, 180, "enemy");
+  this.enemy2.flipX = true;
+
+  // rotate by.angle
+  // this.player.setAngle(-45);
+  this.player.angle = -45;
+
+  // rotate by rad
+  // this.enemy2.setRotation(Math.PI / 4);
+  this.enemy2.rotation = Math.PI / 4;
+};
+
+// this is called up to 60 times per sec
+gameScene.update = function() {
+  // this.enemy1.x += 1;
+  // this.enemy1.angle++;
+  if (this.enemy1.scaleX < 2) {
+    this.enemy1.scaleX += 0.01;
+    this.enemy1.scaleY += 0.01;
+  }
 };
 
 // set the configuration of the game
