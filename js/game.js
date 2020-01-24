@@ -10,6 +10,8 @@ gameScene.init = function() {
 
   this.enemyMinY = 80;
   this.enemyMaxY = 280;
+
+  this.isPlayerAlive = true;
 };
 
 // load assets
@@ -79,6 +81,8 @@ gameScene.create = function() {
 
 // this is called up to 60 times per sec
 gameScene.update = function() {
+  if (!this.isPlayerAlive) return;
+
   // check for active input
   if (this.input.activePointer.isDown) {
     this.player.x += this.playerSpeed;
@@ -89,9 +93,9 @@ gameScene.update = function() {
   const treasureRect = this.goal.getBounds();
 
   if (Phaser.Geom.Intersects.RectangleToRectangle(playerRect, treasureRect)) {
-    // restart the scene
+    // end game
     this.scene.restart();
-    return;
+    return this.gameOver();
   }
 
   // get enemies
@@ -114,11 +118,35 @@ gameScene.update = function() {
 
     if (Phaser.Geom.Intersects.RectangleToRectangle(playerRect, enemyRect)) {
       console.log("game over");
-      // restart the scene
-      this.scene.restart();
-      return;
+
+      // end game
+      return this.gameOver();
     }
   }
+};
+
+gameScene.gameOver = function() {
+  this.isPlayerAlive = false;
+
+  // shake camera
+  this.cameras.main.shake(500);
+
+  this.cameras.main.on(
+    "camerashakecomplete",
+    function() {
+      this.cameras.main.fade(500);
+    },
+    this
+  );
+
+  this.cameras.main.on(
+    "camerafadeoutcomplete",
+    function() {
+      // restart the scene
+      this.scene.restart();
+    },
+    this
+  );
 };
 
 // set the configuration of the game
