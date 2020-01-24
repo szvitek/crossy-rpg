@@ -61,22 +61,18 @@ gameScene.create = function() {
   Phaser.Actions.ScaleXY(this.enemies.getChildren(), -0.5, -0.5);
 
   // set flipX, and speed
-  Phaser.Actions.Call(
-    this.enemies.getChildren(),
-    function(enemy) {
-      // flip enemy
-      enemy.flipX = true;
+  Phaser.Actions.Call(this.enemies.getChildren(), enemy => {
+    // flip enemy
+    enemy.flipX = true;
 
-      // set speed
-      const dir = Math.random() < 0.5 ? 1 : -1;
-      const speed =
-        this.enemyMinSpeed +
-        Math.random() * (this.enemyMaxSpeed - this.enemyMinSpeed);
+    // set speed
+    const dir = Math.random() < 0.5 ? 1 : -1;
+    const speed =
+      this.enemyMinSpeed +
+      Math.random() * (this.enemyMaxSpeed - this.enemyMinSpeed);
 
-      enemy.speed = dir * speed;
-    },
-    this
-  );
+    enemy.speed = dir * speed;
+  });
 };
 
 // this is called up to 60 times per sec
@@ -131,22 +127,14 @@ gameScene.gameOver = function() {
   // shake camera
   this.cameras.main.shake(500);
 
-  this.cameras.main.on(
-    "camerashakecomplete",
-    function() {
-      this.cameras.main.fade(500);
-    },
-    this
-  );
+  this.cameras.main.on("camerashakecomplete", () => {
+    this.cameras.main.fade(500);
+  });
 
-  this.cameras.main.on(
-    "camerafadeoutcomplete",
-    function() {
-      // restart the scene
-      this.scene.restart();
-    },
-    this
-  );
+  this.cameras.main.on("camerafadeoutcomplete", () => {
+    // restart the scene
+    this.scene.restart();
+  });
 };
 
 // set the configuration of the game
